@@ -1,0 +1,13 @@
+pet_plastic_bottle
+hdpe_plastic
+pp_plastic
+aluminum_can
+steel
+copper
+newspaper
+cardboard
+office_paper
+clear_glass
+colored_glass
+electronic_waste
+unsupported
