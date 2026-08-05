@@ -29,17 +29,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   double get _totalCo2Saved {
-    return _records.fold<double>(
-      0,
-      (sum, record) => sum + record.co2Saved,
-    );
+    return _records.fold<double>(0, (sum, record) => sum + record.co2Saved);
   }
 
   int get _totalPoints {
-    return _records.fold<int>(
-      0,
-      (sum, record) => sum + record.pointsEarned,
-    );
+    return _records.fold<int>(0, (sum, record) => sum + record.pointsEarned);
   }
 
   Map<String, int> get _materialDistribution {
@@ -56,7 +50,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final result = <String, int>{};
 
     for (final record in _records) {
-      final month = '${record.createdAt.month.toString().padLeft(2, '0')}/${record.createdAt.year}';
+      final month =
+          '${record.createdAt.month.toString().padLeft(2, '0')}/${record.createdAt.year}';
       result[month] = (result[month] ?? 0) + 1;
     }
 
@@ -67,9 +62,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   void initState() {
     super.initState();
 
-    _historyRepository = HistoryRepository(
-      database: AppDatabase.instance,
-    );
+    _historyRepository = HistoryRepository(database: AppDatabase.instance);
 
     _loadStatistics();
   }
@@ -101,11 +94,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAF3),
       appBar: AppBar(
-        title: const Text('Statistics'),
+        title: const Text('สถิติ'),
         backgroundColor: const Color(0xFFF7FAF3),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: 'รีเฟรช',
             onPressed: _loadStatistics,
             icon: const Icon(Icons.refresh_rounded),
           ),
@@ -127,10 +120,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     ),
                     const SizedBox(height: 24),
                     _SectionCard(
-                      title: 'Material Distribution',
+                      title: 'สัดส่วนวัสดุ',
                       icon: Icons.pie_chart_rounded,
                       child: _records.isEmpty
-                          ? const _EmptyText('No material data yet.')
+                          ? const _EmptyText('ยังไม่มีข้อมูลวัสดุ')
                           : _DistributionList(
                               data: _materialDistribution,
                               total: _totalRecords,
@@ -138,13 +131,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     ),
                     const SizedBox(height: 16),
                     _SectionCard(
-                      title: 'Monthly Activity',
+                      title: 'กิจกรรมรายเดือน',
                       icon: Icons.bar_chart_rounded,
                       child: _records.isEmpty
-                          ? const _EmptyText('No monthly activity yet.')
-                          : _MonthlyActivityList(
-                              data: _monthlyActivity,
-                            ),
+                          ? const _EmptyText('ยังไม่มีกิจกรรมรายเดือน')
+                          : _MonthlyActivityList(data: _monthlyActivity),
                     ),
                     const SizedBox(height: 16),
                     _EnvironmentalSummary(
@@ -184,22 +175,22 @@ class _SummaryGrid extends StatelessWidget {
       children: [
         SummaryCard(
           icon: Icons.history,
-          title: 'Total Records',
+          title: 'จำนวนรายการ',
           value: '$totalRecords',
         ),
         SummaryCard(
           icon: Icons.payments_outlined,
-          title: 'Estimated Value',
+          title: 'มูลค่าประเมิน',
           value: NumberFormatter.money(totalEstimatedValue),
         ),
         SummaryCard(
           icon: Icons.eco_outlined,
-          title: 'CO₂ Saved',
+          title: 'CO₂ ที่ลดได้',
           value: NumberFormatter.co2(totalCo2Saved),
         ),
         SummaryCard(
           icon: Icons.star_outline,
-          title: 'Total Points',
+          title: 'คะแนนสะสม',
           value: '$totalPoints',
         ),
       ],
@@ -229,16 +220,13 @@ class _SectionCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  icon,
-                  color: const Color(0xFF1F4F28),
-                ),
+                Icon(icon, color: const Color(0xFF1F4F28)),
                 const SizedBox(width: 8),
                 Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ],
             ),
@@ -252,10 +240,7 @@ class _SectionCard extends StatelessWidget {
 }
 
 class _DistributionList extends StatelessWidget {
-  const _DistributionList({
-    required this.data,
-    required this.total,
-  });
+  const _DistributionList({required this.data, required this.total});
 
   final Map<String, int> data;
   final int total;
@@ -274,10 +259,7 @@ class _DistributionList extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _LabelValueRow(
-                label: entry.key,
-                value: '${entry.value} records',
-              ),
+              _LabelValueRow(label: entry.key, value: '${entry.value} รายการ'),
               const SizedBox(height: 6),
               LinearProgressIndicator(
                 value: percent,
@@ -293,9 +275,7 @@ class _DistributionList extends StatelessWidget {
 }
 
 class _MonthlyActivityList extends StatelessWidget {
-  const _MonthlyActivityList({
-    required this.data,
-  });
+  const _MonthlyActivityList({required this.data});
 
   final Map<String, int> data;
 
@@ -336,26 +316,22 @@ class _EnvironmentalSummary extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
-              Icons.park_rounded,
-              color: Colors.white,
-              size: 38,
-            ),
+            const Icon(Icons.park_rounded, color: Colors.white, size: 38),
             const SizedBox(height: 14),
             Text(
-              'Environmental Contribution',
+              'ผลกระทบเชิงบวกต่อสิ่งแวดล้อม',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                  ),
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
-              'You have saved ${NumberFormatter.co2(totalCo2Saved)} and earned $totalPoints points from recycling activities.',
+              'คุณลดคาร์บอนได้ ${NumberFormatter.co2(totalCo2Saved)} และได้รับ $totalPoints คะแนนจากกิจกรรมรีไซเคิล',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontWeight: FontWeight.w500,
-                  ),
+                color: Colors.white.withValues(alpha: 0.9),
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -365,10 +341,7 @@ class _EnvironmentalSummary extends StatelessWidget {
 }
 
 class _LabelValueRow extends StatelessWidget {
-  const _LabelValueRow({
-    required this.label,
-    required this.value,
-  });
+  const _LabelValueRow({required this.label, required this.value});
 
   final String label;
   final String value;
@@ -404,9 +377,9 @@ class _EmptyText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: const Color(0xFF5E665B),
-          ),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium?.copyWith(color: const Color(0xFF5E665B)),
     );
   }
 }

@@ -1,4 +1,7 @@
 # Miscellaneous
+.idea/
+.vscode/
+.claude/
 *.class
 *.lock
 *.log

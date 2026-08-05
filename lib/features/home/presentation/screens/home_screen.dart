@@ -9,7 +9,10 @@ import '../../../../features/history/data/repositories/history_repository.dart';
 import '../../../../services/database/app_database.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.historyLoader});
+
+  /// Lets widget tests provide deterministic history without opening SQLite.
+  final Future<List<HistoryRecordModel>> Function()? historyLoader;
 
   static const Color _background = Color(0xFFF7FAF3);
   static const Color _primaryGreen = Color(0xFF2F7D3A);
@@ -36,51 +39,45 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   double get _totalCo2Saved {
-    return _records.fold<double>(
-      0,
-      (sum, record) => sum + record.co2Saved,
-    );
+    return _records.fold<double>(0, (sum, record) => sum + record.co2Saved);
   }
 
   int get _totalPoints {
-    return _records.fold<int>(
-      0,
-      (sum, record) => sum + record.pointsEarned,
-    );
+    return _records.fold<int>(0, (sum, record) => sum + record.pointsEarned);
   }
 
   @override
   void initState() {
     super.initState();
 
-    _historyRepository = HistoryRepository(
-      database: AppDatabase.instance,
-    );
+    _historyRepository = HistoryRepository(database: AppDatabase.instance);
 
     _loadHistory();
   }
 
-Future<void> _loadHistory() async {
-  try {
-    final records = await _historyRepository.getAllHistory();
+  Future<void> _loadHistory() async {
+    try {
+      final records =
+          await (widget.historyLoader?.call() ??
+              _historyRepository.getAllHistory());
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      _records = records;
-      _isLoading = false;
-    });
-  } catch (error) {
-    debugPrint('Failed to load history: $error');
+      setState(() {
+        _records = records;
+        _isLoading = false;
+      });
+    } catch (error) {
+      debugPrint('Failed to load history: $error');
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() {
-      _records = [];
-      _isLoading = false;
-    });
+      setState(() {
+        _records = [];
+        _isLoading = false;
+      });
+    }
   }
-}
 
   Future<void> _openScanScreen() async {
     await Navigator.pushNamed(context, AppRoutes.scan);
@@ -97,6 +94,11 @@ Future<void> _loadHistory() async {
     await _loadHistory();
   }
 
+  Future<void> _openPriceScreen() async {
+    await Navigator.pushNamed(context, AppRoutes.prices);
+    await _loadHistory();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,7 +111,7 @@ Future<void> _loadHistory() async {
           Padding(
             padding: const EdgeInsets.only(right: 14),
             child: IconButton(
-              tooltip: 'Settings',
+              tooltip: 'ตั้งค่า',
               onPressed: () => Navigator.pushNamed(context, AppRoutes.settings),
               icon: const Icon(Icons.settings_rounded),
               iconSize: 32,
@@ -129,12 +131,12 @@ Future<void> _loadHistory() async {
               _ScanHeroCard(onTap: _openScanScreen),
               const SizedBox(height: 28),
               Text(
-                'Dashboard Stats',
+                'สถิติภาพรวม',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.4,
-                      color: HomeScreen._textDark,
-                    ),
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.4,
+                  color: HomeScreen._textDark,
+                ),
               ),
               const SizedBox(height: 16),
               _DashboardGrid(
@@ -145,14 +147,20 @@ Future<void> _loadHistory() async {
               ),
               const SizedBox(height: 30),
               _SecondaryActionButton(
-                label: 'View Statistics',
+                label: 'ดูสถิติ',
                 icon: Icons.bar_chart_rounded,
                 onPressed: _openStatisticsScreen,
               ),
+              const SizedBox(height: 14),
+              _SecondaryActionButton(
+                label: 'ราคารับซื้อ',
+                icon: Icons.price_change_rounded,
+                onPressed: _openPriceScreen,
+              ),
               const SizedBox(height: 34),
               _SectionHeader(
-                title: 'Recent History',
-                actionLabel: 'View all',
+                title: 'ประวัติล่าสุด',
+                actionLabel: 'ดูทั้งหมด',
                 onActionTap: _openHistoryScreen,
               ),
               const SizedBox(height: 14),
@@ -227,9 +235,7 @@ class _AppIntro extends StatelessWidget {
 }
 
 class _ScanHeroCard extends StatelessWidget {
-  const _ScanHeroCard({
-    required this.onTap,
-  });
+  const _ScanHeroCard({required this.onTap});
 
   final VoidCallback onTap;
 
@@ -278,7 +284,8 @@ class _ScanHeroCard extends StatelessWidget {
                   children: [
                     Text(
                       'Scan Material',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
                             fontWeight: FontWeight.w900,
                             color: Colors.white,
                             letterSpacing: -0.4,
@@ -288,9 +295,9 @@ class _ScanHeroCard extends StatelessWidget {
                     Text(
                       'Take a photo or select from gallery',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.86),
-                            fontWeight: FontWeight.w500,
-                          ),
+                        color: Colors.white.withValues(alpha: 0.86),
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
@@ -334,22 +341,22 @@ class _DashboardGrid extends StatelessWidget {
         _StatCard(
           icon: Icons.history_rounded,
           value: '$totalRecords',
-          label: 'Total Records',
+          label: 'จำนวนรายการ',
         ),
         _StatCard(
           icon: Icons.account_balance_wallet_rounded,
           value: NumberFormatter.money(totalEstimatedValue),
-          label: 'Estimated Value',
+          label: 'มูลค่าประเมิน',
         ),
         _StatCard(
           icon: Icons.eco_rounded,
           value: NumberFormatter.co2(totalCo2Saved),
-          label: 'CO₂ Saved',
+          label: 'CO₂ ที่ลดได้',
         ),
         _StatCard(
           icon: Icons.star_rounded,
           value: '$totalPoints',
-          label: 'Total Points',
+          label: 'คะแนนสะสม',
         ),
       ],
     );
@@ -374,27 +381,21 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: HomeScreen._cardGreen,
         borderRadius: BorderRadius.circular(26),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.55),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.55)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            size: 30,
-            color: HomeScreen._darkGreen,
-          ),
+          Icon(icon, size: 30, color: HomeScreen._darkGreen),
           const Spacer(),
           Text(
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  color: HomeScreen._textDark,
-                ),
+              fontWeight: FontWeight.w900,
+              color: HomeScreen._textDark,
+            ),
           ),
           const SizedBox(height: 3),
           Text(
@@ -402,9 +403,9 @@ class _StatCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: const Color(0xFF4F594C),
-                  fontWeight: FontWeight.w600,
-                ),
+              color: const Color(0xFF4F594C),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -431,12 +432,10 @@ class _SecondaryActionButton extends StatelessWidget {
         backgroundColor: const Color(0xFF35C21B),
         foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(58),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(22),
-        ),
-        textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-            ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        textStyle: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
       ),
       icon: Icon(icon, size: 26),
       label: Text(label),
@@ -463,10 +462,10 @@ class _SectionHeader extends StatelessWidget {
           child: Text(
             title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -0.5,
-                  color: HomeScreen._textDark,
-                ),
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.5,
+              color: HomeScreen._textDark,
+            ),
           ),
         ),
         TextButton(
@@ -486,9 +485,7 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _RecentHistoryCard extends StatelessWidget {
-  const _RecentHistoryCard({
-    required this.record,
-  });
+  const _RecentHistoryCard({required this.record});
 
   final HistoryRecordModel record;
 
@@ -501,9 +498,7 @@ class _RecentHistoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: HomeScreen._cardGreen,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.55),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.55)),
       ),
       child: Row(
         children: [
@@ -533,25 +528,25 @@ class _RecentHistoryCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: HomeScreen._textDark,
-                      ),
+                    fontWeight: FontWeight.w900,
+                    color: HomeScreen._textDark,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${record.weight.toStringAsFixed(2)} kg • ${NumberFormatter.money(record.estimatedPrice)}',
+                  '${record.weight.toStringAsFixed(2)} กก. • ${NumberFormatter.money(record.estimatedPrice)}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: HomeScreen._textMuted,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    color: HomeScreen._textMuted,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${NumberFormatter.co2(record.co2Saved)} • ${record.pointsEarned} points',
+                  '${NumberFormatter.co2(record.co2Saved)} • ${record.pointsEarned} คะแนน',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: HomeScreen._darkGreen,
-                        fontWeight: FontWeight.w800,
-                      ),
+                    color: HomeScreen._darkGreen,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 if (record.note != null && record.note!.isNotEmpty) ...[
                   const SizedBox(height: 4),
@@ -560,8 +555,8 @@ class _RecentHistoryCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: const Color(0xFF4F594C),
-                        ),
+                      color: const Color(0xFF4F594C),
+                    ),
                   ),
                 ],
               ],
@@ -583,13 +578,9 @@ class _LoadingHistoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: HomeScreen._cardGreen,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.55),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.55)),
       ),
-      child: const Center(
-        child: CircularProgressIndicator(),
-      ),
+      child: const Center(child: CircularProgressIndicator()),
     );
   }
 }
@@ -604,9 +595,7 @@ class _EmptyRecentHistory extends StatelessWidget {
       decoration: BoxDecoration(
         color: HomeScreen._cardGreen,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.55),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.55)),
       ),
       child: Column(
         children: [
@@ -625,19 +614,19 @@ class _EmptyRecentHistory extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No records yet',
+            'ยังไม่มีรายการ',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  color: HomeScreen._textDark,
-                ),
+              fontWeight: FontWeight.w900,
+              color: HomeScreen._textDark,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Start by scanning your first recyclable material.',
+            'เริ่มต้นด้วยการสแกนวัสดุรีไซเคิลชิ้นแรกของคุณ',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF4F594C),
-                  fontWeight: FontWeight.w500,
-                ),
+              color: const Color(0xFF4F594C),
+              fontWeight: FontWeight.w500,
+            ),
             textAlign: TextAlign.center,
           ),
         ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'router.dart';
 import 'theme.dart';
 
@@ -9,7 +8,7 @@ class RecycleAiApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Recycle AI',
+      title: 'GODSCAN',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       initialRoute: AppRoutes.home,

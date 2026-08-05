@@ -19,9 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
 
-    _historyRepository = HistoryRepository(
-      database: AppDatabase.instance,
-    );
+    _historyRepository = HistoryRepository(database: AppDatabase.instance);
   }
 
   Future<void> _clearAllHistory() async {
@@ -29,21 +27,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Clear all history?'),
+          title: const Text('ล้างประวัติทั้งหมดหรือไม่?'),
           content: const Text(
-            'All saved recycling records will be deleted from this device.',
+            'ข้อมูลรีไซเคิลที่บันทึกไว้ทั้งหมดจะถูกลบออกจากเครื่องนี้',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: const Text('ยกเลิก'),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-              ),
-              child: const Text('Clear'),
+              style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
+              child: const Text('ล้างข้อมูล'),
             ),
           ],
         );
@@ -59,21 +55,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('All history has been cleared'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('ล้างประวัติทั้งหมดแล้ว')));
     } catch (error) {
       debugPrint('Failed to clear history: $error');
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to clear history'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('ล้างประวัติไม่สำเร็จ')));
     } finally {
       if (mounted) {
         setState(() => _isClearing = false);
@@ -86,7 +78,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAF3),
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: const Text('ตั้งค่า'),
         backgroundColor: const Color(0xFFF7FAF3),
       ),
       body: SafeArea(
@@ -94,23 +86,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.all(20),
           children: [
             const _SettingsSection(
-              title: 'Application',
+              title: 'แอปพลิเคชัน',
               children: [
                 _SettingsTile(
                   icon: Icons.wifi_off_rounded,
-                  title: 'Offline Mode',
-                  subtitle: 'This app stores all data locally on this device.',
+                  title: 'โหมดออฟไลน์',
+                  subtitle: 'แอปนี้จัดเก็บข้อมูลทั้งหมดไว้ในเครื่องนี้เท่านั้น',
                 ),
               ],
             ),
             const SizedBox(height: 18),
             _SettingsSection(
-              title: 'Data',
+              title: 'ข้อมูล',
               children: [
                 _SettingsTile(
                   icon: Icons.delete_sweep_rounded,
-                  title: 'Clear All History',
-                  subtitle: 'Remove all saved recycling records.',
+                  title: 'ล้างประวัติทั้งหมด',
+                  subtitle: 'ลบข้อมูลรีไซเคิลที่บันทึกไว้ทั้งหมด',
                   trailing: _isClearing
                       ? const SizedBox(
                           width: 22,
@@ -127,22 +119,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 18),
             const _SettingsSection(
-              title: 'About',
+              title: 'เกี่ยวกับ',
               children: [
                 _SettingsTile(
                   icon: Icons.info_outline_rounded,
-                  title: 'Recycle AI',
-                  subtitle:
-                      'AI-based recyclable material classification and price estimation app.',
+                  title: 'GODSCAN',
+                  subtitle: 'แอปจำแนกวัสดุรีไซเคิลด้วย AI และประเมินราคาขาย',
                 ),
                 _SettingsTile(
                   icon: Icons.storage_rounded,
-                  title: 'Storage',
-                  subtitle: 'SQLite local database, no cloud connection.',
+                  title: 'พื้นที่จัดเก็บ',
+                  subtitle: 'ฐานข้อมูล SQLite ในเครื่อง ไม่เชื่อมต่อคลาวด์',
                 ),
                 _SettingsTile(
                   icon: Icons.code_rounded,
-                  title: 'Version',
+                  title: 'เวอร์ชัน',
                   subtitle: '1.0.0',
                 ),
               ],
@@ -155,10 +146,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 }
 
 class _SettingsSection extends StatelessWidget {
-  const _SettingsSection({
-    required this.title,
-    required this.children,
-  });
+  const _SettingsSection({required this.title, required this.children});
 
   final String title;
   final List<Widget> children;
@@ -168,9 +156,7 @@ class _SettingsSection extends StatelessWidget {
     return Card(
       color: const Color(0xFFE4ECE0),
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(26),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Column(
@@ -181,9 +167,9 @@ class _SettingsSection extends StatelessWidget {
               child: Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      color: const Color(0xFF1F4F28),
-                    ),
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF1F4F28),
+                ),
               ),
             ),
             ...children,
@@ -210,10 +196,7 @@ class _SettingsTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 18,
-        vertical: 4,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
       leading: Container(
         width: 46,
         height: 46,
@@ -221,10 +204,7 @@ class _SettingsTile extends StatelessWidget {
           color: Colors.white.withValues(alpha: 0.75),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Icon(
-          icon,
-          color: const Color(0xFF1F4F28),
-        ),
+        child: Icon(icon, color: const Color(0xFF1F4F28)),
       ),
       title: Text(
         title,

@@ -4,15 +4,15 @@ class NumberFormatter {
   const NumberFormatter._();
 
   static String money(double value) {
-    return '${NumberFormat('#,##0.00').format(value)} THB';
+    return '${NumberFormat('#,##0.00').format(value)} บาท';
   }
 
   static String kg(double value) {
-    return '${NumberFormat('#,##0.##').format(value)} kg';
+    return '${NumberFormat('#,##0.##').format(value)} กก.';
   }
 
   static String co2(double value) {
-    return '${NumberFormat('#,##0.##').format(value)} kgCO₂e';
+    return '${NumberFormat('#,##0.##').format(value)} กก.CO₂e';
   }
 
   static String percent(double value) {
