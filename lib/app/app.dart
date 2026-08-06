@@ -8,7 +8,7 @@ class RecycleAiApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GODSCAN',
+      title: 'Classifying and Valuing Recyclable Materials',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       initialRoute: AppRoutes.home,

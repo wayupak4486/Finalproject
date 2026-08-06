@@ -1,3 +1,4 @@
+import '../../../../core/constants/database_constants.dart';
 import '../../../../services/database/app_database.dart';
 import '../models/material_price_model.dart';
 
@@ -9,7 +10,10 @@ class MaterialPriceRepository {
   Future<List<MaterialPriceModel>> getAllPrices() async {
     final db = await database.database;
 
-    final maps = await db.query('material_prices', orderBy: 'display_name ASC');
+    final maps = await db.query(
+      DatabaseConstants.materialPricesTable,
+      orderBy: 'display_name ASC',
+    );
 
     return maps.map(MaterialPriceModel.fromMap).toList();
   }
@@ -29,7 +33,7 @@ class MaterialPriceRepository {
     final db = await database.database;
 
     await db.update(
-      'material_prices',
+      DatabaseConstants.materialPricesTable,
       {
         'price_per_kg': pricePerKg,
         'source': source,

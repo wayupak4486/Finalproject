@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_colors.dart';
 import '../../../../features/history/data/repositories/history_repository.dart';
 import '../../../../services/database/app_database.dart';
 
@@ -76,10 +77,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAF3),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('ตั้งค่า'),
-        backgroundColor: const Color(0xFFF7FAF3),
+        backgroundColor: AppColors.background,
       ),
       body: SafeArea(
         child: ListView(
@@ -123,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 _SettingsTile(
                   icon: Icons.info_outline_rounded,
-                  title: 'GODSCAN',
+                  title: 'Classifying and Valuing Recyclable Materials',
                   subtitle: 'แอปจำแนกวัสดุรีไซเคิลด้วย AI และประเมินราคาขาย',
                 ),
                 _SettingsTile(
@@ -154,7 +155,7 @@ class _SettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFFE4ECE0),
+      color: AppColors.cardGreen,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
       child: Padding(
@@ -168,7 +169,7 @@ class _SettingsSection extends StatelessWidget {
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: const Color(0xFF1F4F28),
+                  color: AppColors.darkGreen,
                 ),
               ),
             ),
@@ -204,19 +205,19 @@ class _SettingsTile extends StatelessWidget {
           color: Colors.white.withValues(alpha: 0.75),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Icon(icon, color: const Color(0xFF1F4F28)),
+        child: Icon(icon, color: AppColors.darkGreen),
       ),
       title: Text(
         title,
         style: const TextStyle(
           fontWeight: FontWeight.w900,
-          color: Color(0xFF1E211D),
+          color: AppColors.textDark,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: const TextStyle(
-          color: Color(0xFF5E665B),
+          color: AppColors.textMuted,
           fontWeight: FontWeight.w500,
         ),
       ),

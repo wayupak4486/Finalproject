@@ -1,15 +1,13 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../core/constants/database_constants.dart';
 import '../../core/constants/material_catalog.dart';
 
 class AppDatabase {
   AppDatabase._();
 
   static final AppDatabase instance = AppDatabase._();
-
-  static const String _databaseName = 'recycle_ai.db';
-  static const int _databaseVersion = 3;
 
   Database? _database;
 
@@ -24,11 +22,11 @@ class AppDatabase {
 
   Future<Database> _initDatabase() async {
     final databasePath = await getDatabasesPath();
-    final path = join(databasePath, _databaseName);
+    final path = join(databasePath, DatabaseConstants.databaseName);
 
     final db = await openDatabase(
       path,
-      version: _databaseVersion,
+      version: DatabaseConstants.databaseVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -40,12 +38,13 @@ class AppDatabase {
 
   /// Guards against a `material_prices` table left empty by an interrupted
   /// migration or a stale dev build whose stored schema version already
-  /// matches [_databaseVersion] (so [_onUpgrade] would not run again).
+  /// matches [DatabaseConstants.databaseVersion] (so [_onUpgrade] would not
+  /// run again).
   Future<void> _ensureMaterialPricesSeeded(Database db) async {
     final tables = await db.query(
       'sqlite_master',
       where: 'type = ? AND name = ?',
-      whereArgs: ['table', 'material_prices'],
+      whereArgs: ['table', DatabaseConstants.materialPricesTable],
     );
 
     if (tables.isEmpty) {
@@ -55,7 +54,7 @@ class AppDatabase {
     }
 
     final countResult = await db.rawQuery(
-      'SELECT COUNT(*) AS count FROM material_prices',
+      'SELECT COUNT(*) AS count FROM ${DatabaseConstants.materialPricesTable}',
     );
     final count = Sqflite.firstIntValue(countResult) ?? 0;
 
@@ -68,7 +67,7 @@ class AppDatabase {
     await _createMaterialPricesTable(db);
 
     await db.execute('''
-      CREATE TABLE history (
+      CREATE TABLE ${DatabaseConstants.historyTable} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         image_path TEXT NOT NULL,
         material TEXT NOT NULL,
@@ -98,7 +97,9 @@ class AppDatabase {
   /// the table (which would discard the most recently stored values).
   Future<void> _migrateLegacyMaterialPrices(Database db) async {
     const legacyTable = 'material_prices_v1';
-    await db.execute('ALTER TABLE material_prices RENAME TO $legacyTable');
+    await db.execute(
+      'ALTER TABLE ${DatabaseConstants.materialPricesTable} RENAME TO $legacyTable',
+    );
     await _createMaterialPricesTable(db);
     await _seedMaterialPrices(db);
 
@@ -116,7 +117,7 @@ class AppDatabase {
       if (label == null) continue;
 
       await db.update(
-        'material_prices',
+        DatabaseConstants.materialPricesTable,
         {
           'price_per_kg': price['price_per_kg'],
           'co2_factor': price['co2_factor'],
@@ -133,7 +134,7 @@ class AppDatabase {
 
   Future<void> _createMaterialPricesTable(Database db) async {
     await db.execute('''
-      CREATE TABLE material_prices (
+      CREATE TABLE ${DatabaseConstants.materialPricesTable} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         label TEXT NOT NULL UNIQUE,
         display_name TEXT NOT NULL,
@@ -150,15 +151,19 @@ class AppDatabase {
     final now = DateTime.now().toIso8601String();
 
     for (final entry in MaterialCatalog.byLabel.entries) {
-      await db.insert('material_prices', {
-        'label': entry.key,
-        'display_name': entry.value.displayName,
-        'category': entry.value.category,
-        'price_per_kg': entry.value.pricePerKg,
-        'co2_factor': entry.value.co2FactorPerKg,
-        'source': 'default',
-        'updated_at': now,
-      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      await db.insert(
+        DatabaseConstants.materialPricesTable,
+        {
+          'label': entry.key,
+          'display_name': entry.value.displayName,
+          'category': entry.value.category,
+          'price_per_kg': entry.value.pricePerKg,
+          'co2_factor': entry.value.co2FactorPerKg,
+          'source': 'default',
+          'updated_at': now,
+        },
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
     }
   }
 }

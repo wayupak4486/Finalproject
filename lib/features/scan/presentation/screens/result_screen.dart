@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/material_catalog.dart';
 import '../../../../core/utils/calculation_utils.dart';
@@ -9,6 +9,7 @@ import '../../../../features/history/data/repositories/history_repository.dart';
 import '../../../../features/prices/data/repositories/material_price_repository.dart';
 import '../../../../services/database/app_database.dart';
 import '../../data/models/scan_result_args.dart';
+import '../widgets/result_screen_widgets.dart';
 
 class ResultScreen extends StatefulWidget {
   const ResultScreen({super.key});
@@ -27,6 +28,8 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Map<String, double> _livePrices = {};
   double _weightKg = 0;
+
+  // Derived values
 
   MaterialInfo get _materialInfo =>
       MaterialCatalog.lookup(_selectedLabel ?? _args!.result.label);
@@ -63,6 +66,15 @@ class _ResultScreenState extends State<ResultScreen> {
     _loadLivePrices();
   }
 
+  @override
+  void dispose() {
+    _weightController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  // Data fetching
+
   Future<void> _loadLivePrices() async {
     try {
       final prices = await _priceRepository.getPricesByLabel();
@@ -77,12 +89,7 @@ class _ResultScreenState extends State<ResultScreen> {
     }
   }
 
-  @override
-  void dispose() {
-    _weightController.dispose();
-    _noteController.dispose();
-    super.dispose();
-  }
+  // Event handlers
 
   Future<void> _saveRecord() async {
     final args = _args;
@@ -143,16 +150,16 @@ class _ResultScreenState extends State<ResultScreen> {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            _CapturedImage(imagePath: args.imagePath),
+            ResultCapturedImage(imagePath: args.imagePath),
             const SizedBox(height: 16),
-            _InfoCard(
+            ResultInfoCard(
               title: 'ผลการวิเคราะห์ AI',
               children: [
-                _KeyValueRow(
+                ResultKeyValueRow(
                   label: 'ผลทำนายจาก AI',
                   value: MaterialCatalog.lookup(args.result.label).displayName,
                 ),
-                _KeyValueRow(
+                ResultKeyValueRow(
                   label: 'ความมั่นใจ',
                   value:
                       '${(args.result.confidence * 100).toStringAsFixed(1)}%',
@@ -188,8 +195,11 @@ class _ResultScreenState extends State<ResultScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
-                _KeyValueRow(label: 'หมวดหมู่', value: materialInfo.category),
-                _KeyValueRow(
+                ResultKeyValueRow(
+                  label: 'หมวดหมู่',
+                  value: materialInfo.category,
+                ),
+                ResultKeyValueRow(
                   label: 'สถานะการขาย',
                   value: _isSellable ? 'รับซื้อ' : 'ไม่รับซื้อ',
                   valueColor: _isSellable ? Colors.green : null,
@@ -208,7 +218,7 @@ class _ResultScreenState extends State<ResultScreen> {
             ),
             if (_isSellable) ...[
               const SizedBox(height: 16),
-              _InfoCard(
+              ResultInfoCard(
                 title: 'กรอกน้ำหนัก',
                 children: [
                   TextField(
@@ -230,14 +240,14 @@ class _ResultScreenState extends State<ResultScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              _InfoCard(
+              ResultInfoCard(
                 title: 'ข้อมูลราคา',
                 children: [
-                  _KeyValueRow(
+                  ResultKeyValueRow(
                     label: 'ราคาต่อกก.',
                     value: NumberFormatter.money(_pricePerKg),
                   ),
-                  _KeyValueRow(
+                  ResultKeyValueRow(
                     label: 'ราคาประเมิน',
                     value: NumberFormatter.money(_estimatedPrice),
                   ),
@@ -251,14 +261,14 @@ class _ResultScreenState extends State<ResultScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              _InfoCard(
+              ResultInfoCard(
                 title: 'ผลกระทบต่อสิ่งแวดล้อม',
                 children: [
-                  _KeyValueRow(
+                  ResultKeyValueRow(
                     label: 'CO₂ ที่ลดได้',
                     value: NumberFormatter.co2(_co2Saved),
                   ),
-                  _KeyValueRow(
+                  ResultKeyValueRow(
                     label: 'คะแนนที่ได้รับ',
                     value: '$_points คะแนน',
                   ),
@@ -273,12 +283,14 @@ class _ResultScreenState extends State<ResultScreen> {
               ),
             ],
             const SizedBox(height: 16),
-            _InfoCard(
+            ResultInfoCard(
               title: 'เคล็ดลับการรีไซเคิล',
-              children: [for (final tip in materialInfo.tips) _TipText(tip)],
+              children: [
+                for (final tip in materialInfo.tips) ResultTipText(tip),
+              ],
             ),
             const SizedBox(height: 16),
-            _InfoCard(
+            ResultInfoCard(
               title: 'หมายเหตุ',
               children: [
                 TextField(
@@ -306,117 +318,6 @@ class _ResultScreenState extends State<ResultScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _CapturedImage extends StatelessWidget {
-  const _CapturedImage({required this.imagePath});
-
-  final String? imagePath;
-
-  @override
-  Widget build(BuildContext context) {
-    final bool hasImage = imagePath != null && File(imagePath!).existsSync();
-
-    if (!hasImage) {
-      return AspectRatio(
-        aspectRatio: 16 / 10,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: const Center(child: Icon(Icons.image_outlined, size: 64)),
-        ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: Image.file(
-        File(imagePath!),
-        height: 240,
-        width: double.infinity,
-        fit: BoxFit.cover,
-      ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  const _InfoCard({required this.title, required this.children});
-
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            ...children,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _KeyValueRow extends StatelessWidget {
-  const _KeyValueRow({
-    required this.label,
-    required this.value,
-    this.valueColor,
-  });
-
-  final String label;
-  final String value;
-  final Color? valueColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Expanded(child: Text(label)),
-          Text(
-            value,
-            style: TextStyle(fontWeight: FontWeight.bold, color: valueColor),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TipText extends StatelessWidget {
-  const _TipText(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('• '),
-          Expanded(child: Text(text)),
-        ],
       ),
     );
   }

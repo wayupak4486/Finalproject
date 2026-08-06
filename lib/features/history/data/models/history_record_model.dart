@@ -61,3 +61,15 @@ class HistoryRecordModel {
     );
   }
 }
+
+/// Aggregate totals shared by the home and statistics screens.
+extension HistoryRecordListSummary on List<HistoryRecordModel> {
+  double get totalEstimatedPrice =>
+      fold<double>(0, (sum, record) => sum + record.estimatedPrice);
+
+  double get totalCo2Saved =>
+      fold<double>(0, (sum, record) => sum + record.co2Saved);
+
+  int get totalPointsEarned =>
+      fold<int>(0, (sum, record) => sum + record.pointsEarned);
+}

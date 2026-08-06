@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/date_formatter.dart';
 import '../../../../core/utils/number_formatter.dart';
 import '../../data/models/history_record_model.dart';
 
@@ -16,10 +18,10 @@ class HistoryDetailScreen extends StatelessWidget {
     final hasImage = imageFile.existsSync();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAF3),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('รายละเอียดประวัติ'),
-        backgroundColor: const Color(0xFFF7FAF3),
+        backgroundColor: AppColors.background,
       ),
       body: SafeArea(
         child: ListView(
@@ -37,11 +39,11 @@ class HistoryDetailScreen extends StatelessWidget {
                   : Container(
                       height: 260,
                       width: double.infinity,
-                      color: const Color(0xFFE4ECE0),
+                      color: AppColors.cardGreen,
                       child: const Icon(
                         Icons.image_outlined,
                         size: 72,
-                        color: Color(0xFF1F4F28),
+                        color: AppColors.darkGreen,
                       ),
                     ),
             ),
@@ -97,7 +99,7 @@ class HistoryDetailScreen extends StatelessWidget {
                 _DetailRow(label: 'หมายเหตุ', value: _safeNote(record.note)),
                 _DetailRow(
                   label: 'สร้างเมื่อ',
-                  value: _formatDate(record.createdAt),
+                  value: DateFormatter.slashDateTime(record.createdAt),
                 ),
               ],
             ),
@@ -114,16 +116,6 @@ class HistoryDetailScreen extends StatelessWidget {
 
     return note.trim();
   }
-
-  static String _formatDate(DateTime dateTime) {
-    final day = dateTime.day.toString().padLeft(2, '0');
-    final month = dateTime.month.toString().padLeft(2, '0');
-    final year = dateTime.year;
-    final hour = dateTime.hour.toString().padLeft(2, '0');
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-
-    return '$day/$month/$year $hour:$minute';
-  }
 }
 
 class _SectionCard extends StatelessWidget {
@@ -137,9 +129,9 @@ class _SectionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFFE4ECE0),
+        color: AppColors.cardGreen,
         borderRadius: BorderRadius.circular(26),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.55)),
+        border: Border.all(color: AppColors.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +140,7 @@ class _SectionCard extends StatelessWidget {
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w900,
-              color: const Color(0xFF1E211D),
+              color: AppColors.textDark,
             ),
           ),
           const SizedBox(height: 12),
@@ -174,7 +166,7 @@ class _DetailRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final valueColor = isHighlight
         ? const Color(0xFF1F7A35)
-        : const Color(0xFF1E211D);
+        : AppColors.textDark;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -185,7 +177,7 @@ class _DetailRow extends StatelessWidget {
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: const Color(0xFF5E665B),
+                color: AppColors.textMuted,
                 fontWeight: FontWeight.w700,
               ),
             ),
