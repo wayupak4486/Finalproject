@@ -1,19 +1,47 @@
-import 'package:flutter/material.dart';
+// ==============================================================================
+// นำเข้าไฟล์ (Import) ที่จำเป็น
+// ==============================================================================
+import 'package:flutter/material.dart'; // นำเข้าคลาส Color และ Colors จาก Flutter
 
-/// Shared palette for the app's custom "soft green" screens (home, prices,
-/// history, statistics, settings). Centralized here because the same hex
-/// values were previously copy-pasted as private constants on every screen.
+// ==============================================================================
+// คลาส AppColors: ศูนย์รวมจานสีของแอปพลิเคชัน
+// ==============================================================================
+/// คำอธิบายเดิมในโค้ด: เป็นจานสีที่แชร์ใช้ร่วมกันสำหรับหน้าจอโทน "สีเขียวอ่อน" 
+/// นำมารวมไว้ที่นี่เพราะก่อนหน้านี้โค้ดสีถูกก็อปปี้ไปแปะซ้ำๆ ในทุกหน้าจอ
 class AppColors {
+  
+  // ----------------------------------------------------------------------------
+  // Private Constructor: ใส่เครื่องหมาย _ (ขีดล่าง) ป้องกันการสร้างออบเจกต์ AppColors()
+  // เพื่อบังคับให้เรียกใช้งานผ่านชื่อคลาสโดยตรง เช่น AppColors.background (ประหยัด Memory)
+  // ----------------------------------------------------------------------------
   const AppColors._();
 
-  static const Color background = Color(0xFFF7FAF3);
-  static const Color primaryGreen = Color(0xFF2F7D3A);
-  static const Color darkGreen = Color(0xFF1F4F28);
-  static const Color cardGreen = Color(0xFFE4ECE0);
-  static const Color textDark = Color(0xFF1E211D);
-  static const Color textMuted = Color(0xFF5E665B);
-  static const Color textMutedSecondary = Color(0xFF4F594C);
+  // ----------------------------------------------------------------------------
+  // กลุ่มที่ 1: สีหลักและสีพื้นหลัง (รหัส 0xFF นำหน้า หมายถึงสีทึบแสง 100%)
+  // ----------------------------------------------------------------------------
+  static const Color background = Color(0xFFF7FAF3); // สีพื้นหลังหน้าจอหลัก (ขาวอมเขียว)
+  static const Color primaryGreen = Color(0xFF2F7D3A); // สีเขียวสว่าง (อาจใช้กับปุ่มหรือไอคอน)
+  static const Color darkGreen = Color(0xFF1F4F28);    // สีเขียวเข้ม (สีโลโก้ หรือ แถบด้านบน)
+  static const Color cardGreen = Color(0xFFE4ECE0);    // สีพื้นหลังของการ์ดแสดงข้อมูล
 
-  /// Faint white border drawn around most cards on the soft-green screens.
-  static Color get cardBorder => Colors.white.withValues(alpha: 0.55);
+  // ----------------------------------------------------------------------------
+  // กลุ่มที่ 2: สีแจ้งเตือน (Warning/Pending)
+  // ----------------------------------------------------------------------------
+  /// คำอธิบายในโค้ด: สีพื้นหลังสำหรับ "การ์ดประวัติที่ยังขาดข้อมูลน้ำหนัก" 
+  /// และรอให้ผู้ใช้กรอกข้อมูลลงไป
+  static const Color cardPendingRed = Color(0xFFF9DCDA); // สีแดงอ่อน (เอาไว้เตือนผู้ใช้)
+
+  // ----------------------------------------------------------------------------
+  // กลุ่มที่ 3: สีตัวอักษร (Typography Colors)
+  // ----------------------------------------------------------------------------
+  static const Color textDark = Color(0xFF1E211D);             // สีข้อความหลัก (เกือบดำ)
+  static const Color textMuted = Color(0xFF5E665B);            // สีข้อความรอง (เทาอมเขียว)
+  static const Color textMutedSecondary = Color(0xFF4F594C);   // สีข้อความรองอันดับสอง (เข้มกว่า Muted นิดหน่อย)
+
+  // ----------------------------------------------------------------------------
+  // กลุ่มที่ 4: ฟังก์ชันดึงสีแบบคำนวณความโปร่งใส (Opacity/Alpha)
+  // ----------------------------------------------------------------------------
+  /// คำอธิบายในโค้ด: เส้นขอบสีขาวจางๆ ที่วาดรอบๆ การ์ดส่วนใหญ่ในหน้าจอโทนสีเขียวอ่อน
+  // ใช้ Getter (get) เพราะมีการเรียกใช้ .withValues() เพื่อคำนวณค่าสีใหม่ (ไม่ใช่ค่าคงที่ตายตัว)
+  static Color get cardBorder => Colors.white.withValues(alpha: 0.55); 
 }

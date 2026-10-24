@@ -1,16 +1,44 @@
-import 'dart:io';
+import 'dart:io'; // นำเข้าเครื่องมือจัดการไฟล์ (File) เพื่อให้อ่านไฟล์ในเครื่องได้
 
-import 'package:flutter_test/flutter_test.dart';
-import 'package:lastboss/core/constants/material_catalog.dart';
-import 'package:lastboss/services/ml/classifier_service.dart';
+import 'package:flutter_test/flutter_test.dart'; // นำเข้าชุดเครื่องมือสุดเทพสำหรับการทำ Unit Test
+import 'package:lastboss/core/constants/material_catalog.dart'; // นำเข้าแคตตาล็อกฐานข้อมูลขยะของแอป
+import 'package:lastboss/services/ml/classifier_service.dart'; // นำเข้าเครื่องมือสับข้อความของระบบ AI
 
+// ===========================================================================
+// ฟังก์ชัน main() สำหรับรันชุดทดสอบ (Test Suite)
+// ===========================================================================
 void main() {
+  
+  // 💡 สร้างหัวข้อการทดสอบ 1 หัวข้อ (ใช้คำสั่ง test)
+  // พารามิเตอร์ 1: ชื่อหัวข้อ (เขียนอธิบายเป็นภาษาไทยให้คนอ่านเข้าใจง่ายๆ)
+  // พารามิเตอร์ 2: ฟังก์ชันการทำงานแบบ Asynchronous (เพราะต้องรออ่านไฟล์)
   test('labels ของโมเดลทั้ง 7 รายการมีข้อมูลอ้างอิงในแอป', () async {
+    
+    // ---------- 1. ฝั่งเตรียมข้อมูล (Arrange) ----------
+    
+    // วิ่งไปที่โฟลเดอร์ assets/models แล้วเปิดอ่านไฟล์ labels.txt ออกมาเป็นข้อความยาวๆ 1 ก้อน
+    // (await = รอจนกว่าจะอ่านไฟล์เสร็จ)
     final rawLabels = await File('assets/models/labels.txt').readAsString();
+    
+    // ส่งข้อความดิบไปให้ ClassifierService หั่นแยกบรรทัด (ได้ออกมาเป็น List รายชื่อ)
     final labels = ClassifierService.parseLabels(rawLabels);
 
+    // ---------- 2. ฝั่งตรวจสอบความถูกต้อง (Assert) ----------
+    
+    // 💡 ด่านที่ 1: ตรวจสอบ "จำนวน"
+    // คาดหวังว่า: รายชื่อที่แกะออกมาจากไฟล์ txt ต้องมีทั้งหมด 7 รายการเป๊ะๆ 
+    // (ถ้าโมเดล AI เกิดเปลี่ยนไปมี 8 รายการ เทสนี้จะแจ้งเตือนทันที!)
     expect(labels, hasLength(7));
+
+    // 💡 ด่านที่ 2: ตรวจสอบ "ความถูกต้องและการเรียงลำดับ" (สำคัญมาก!)
+    // คาดหวังว่า: รายชื่อจากโมเดล AI (labels) จะต้องเขียนเหมือนกันเป๊ะ 
+    // และ "เรียงลำดับดัชนี (Index) ตรงกันเป๊ะ" กับรายชื่อใน MaterialCatalog.byLabel.keys
     expect(labels, orderedEquals(MaterialCatalog.byLabel.keys));
+
+    // 💡 ด่านที่ 3: ตรวจสอบ "ความสมบูรณ์ของข้อมูล"
+    // คาดหวังว่า: สมาชิกทุกตัวในลิสต์ (everyElement) จะต้องมีตัวหนังสืออยู่ข้างใน (isNotEmpty)
+    // (ป้องกันกรณีที่มีคนเผลอไปกด Enter บรรทัดว่างทิ้งไว้ในไฟล์ labels.txt)
     expect(labels, everyElement(isNotEmpty));
+    
   });
 }

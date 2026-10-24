@@ -1,24 +1,60 @@
-import 'package:intl/intl.dart';
+// ==============================================================================
+// ส่วนที่ 1: นำเข้าแพ็กเกจ (Import)
+// ==============================================================================
+// นำเข้าแพ็กเกจ 'intl' เพื่อเรียกใช้คลาส DateFormat สำหรับจัดรูปแบบวันที่
+import 'package:intl/intl.dart'; //
 
+// ==============================================================================
+// ส่วนที่ 2: คลาส DateFormatter
+// ==============================================================================
 class DateFormatter {
-  const DateFormatter._();
+  // ล็อคไม่ให้สร้างออบเจกต์ (เพื่อประหยัด Memory และเรียกใช้ผ่านคลาสโดยตรง)
+  const DateFormatter._(); //
 
-  static String shortDate(DateTime dateTime) {
-    return DateFormat('dd MMM yyyy').format(dateTime);
+  // ----------------------------------------------------------------------------
+  // ฟังก์ชันที่ 1: shortDate (วันที่แบบย่อ)
+  // รับค่า: dateTime (ข้อมูลเวลาดิบๆ ชนิด DateTime)
+  // ส่งค่า: ข้อความ (String) รูปแบบ "วัน เดือน(ย่อ) ปี" เช่น 05 Jan 2024
+  // ----------------------------------------------------------------------------
+  static String shortDate(DateTime dateTime) { //
+    // ใช้ DateFormat กำหนดโครงสร้าง: dd(วันที่ 2 หลัก) MMM(เดือนแบบตัวอักษรย่อ) yyyy(ปี 4 หลัก)
+    return DateFormat('dd MMM yyyy').format(dateTime); //
   }
 
-  static String dateTime(DateTime dateTime) {
-    return DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
+  // ----------------------------------------------------------------------------
+  // ฟังก์ชันที่ 2: dateTime (วันที่พร้อมเวลา)
+  // รับค่า: dateTime (ข้อมูลเวลาดิบๆ ชนิด DateTime)
+  // ส่งค่า: ข้อความ (String) เช่น 05 Jan 2024, 14:30
+  // ----------------------------------------------------------------------------
+  static String dateTime(DateTime dateTime) { //
+    // เพิ่ม HH:mm (ชั่วโมง:นาที ระบบ 24 ชม.) ต่อท้าย
+    return DateFormat('dd MMM yyyy, HH:mm').format(dateTime); //
   }
 
-  /// Numeric `dd/MM/yyyy HH:mm` form used by history list/detail cards.
-  static String slashDateTime(DateTime dateTime) {
-    final day = dateTime.day.toString().padLeft(2, '0');
-    final month = dateTime.month.toString().padLeft(2, '0');
-    final year = dateTime.year;
-    final hour = dateTime.hour.toString().padLeft(2, '0');
-    final minute = dateTime.minute.toString().padLeft(2, '0');
+  // ----------------------------------------------------------------------------
+  // ฟังก์ชันที่ 3: slashDateTime (วันที่แบบตัวเลขคั่นด้วยสแลช)
+  // *ฟังก์ชันนี้มักใช้แสดงในการ์ดรายการประวัติ*
+  // รับค่า: dateTime (ข้อมูลเวลาดิบๆ ชนิด DateTime)
+  // ส่งค่า: ข้อความ (String) รูปแบบ "dd/MM/yyyy HH:mm" เช่น 05/10/2024 09:05
+  // ----------------------------------------------------------------------------
+  /// คำอธิบายในโค้ด: รูปแบบตัวเลข `dd/MM/yyyy HH:mm` ใช้สำหรับรายการประวัติ/รายละเอียดประวัติ
+  static String slashDateTime(DateTime dateTime) { //[cite: 14]
+    
+    // ดึง 'วันที่' ออกมาแปลงเป็นข้อความ (String)
+    // .padLeft(2, '0') หมายถึง: "ถ้าความยาวข้อความไม่ถึง 2 ตัวอักษร ให้เติมเลข '0' ด้านซ้าย" (เช่น วันที่ 5 จะกลายเป็น '05')
+    final day = dateTime.day.toString().padLeft(2, '0'); //[cite: 14]
+    
+    // ดึง 'เดือน' ออกมา และเติมเลข 0 ข้างหน้าถ้าเป็นเลขหลักเดียว (เช่น เดือน 9 กลายเป็น '09')
+    final month = dateTime.month.toString().padLeft(2, '0'); //[cite: 14]
+    
+    // ดึง 'ปี' ออกมา (ปีเป็นเลข 4 หลักอยู่แล้ว ไม่ต้องเติม 0)
+    final year = dateTime.year; //[cite: 14]
+    
+    // ดึง 'ชั่วโมง' และ 'นาที' พร้อมเติม 0 ข้างหน้าเพื่อความสวยงาม (เช่น 9 โมง 5 นาที กลายเป็น '09:05')
+    final hour = dateTime.hour.toString().padLeft(2, '0'); //[cite: 14]
+    final minute = dateTime.minute.toString().padLeft(2, '0'); //[cite: 14]
 
-    return '$day/$month/$year $hour:$minute';
+    // นำตัวแปรทั้งหมดมาประกอบร่างเป็นข้อความเดียว โดยมีเครื่องหมาย / และ : คั่นกลาง
+    return '$day/$month/$year $hour:$minute'; //[cite: 14]
   }
 }

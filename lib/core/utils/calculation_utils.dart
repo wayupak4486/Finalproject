@@ -1,23 +1,52 @@
-import '../constants/app_constants.dart';
+// ==============================================================================
+// ส่วนที่ 1: นำเข้าไฟล์ (Import)
+// ==============================================================================
+// นำเข้าไฟล์ AppConstants เพื่อดึงตัวแปร 'pointsPerKgCo2e' (ตัวคูณแต้ม) มาใช้คำนวณ
+import '../constants/app_constants.dart'; //
 
+// ==============================================================================
+// ส่วนที่ 2: คลาส CalculationUtils (กล่องเครื่องมือคำนวณ)
+// ==============================================================================
 class CalculationUtils {
-  const CalculationUtils._();
+  
+  // Private Constructor: ล็อคไม่ให้สร้างออบเจกต์ (CalculationUtils())
+  // บังคับให้เรียกฟังก์ชันผ่านชื่อคลาสโดยตรง เช่น CalculationUtils.calculatePoints()
+  const CalculationUtils._(); //
 
+  // ----------------------------------------------------------------------------
+  // ฟังก์ชันที่ 1: คำนวณราคารับซื้อรวม
+  // รับค่า: weightKg (น้ำหนัก) และ pricePerKg (ราคาต่อกิโล) บังคับใส่ค่า (required)
+  // คืนค่า: double (ตัวเลขทศนิยม)
+  // ----------------------------------------------------------------------------
   static double calculateEstimatedPrice({
-    required double weightKg,
-    required double pricePerKg,
+    required double weightKg, //
+    required double pricePerKg, //
   }) {
-    return weightKg * pricePerKg;
+    // สูตร: น้ำหนัก * ราคาต่อหน่วย
+    return weightKg * pricePerKg; //
   }
 
+  // ----------------------------------------------------------------------------
+  // ฟังก์ชันที่ 2: คำนวณปริมาณก๊าซคาร์บอนไดออกไซด์ (CO2e) ที่ลดได้
+  // รับค่า: weightKg (น้ำหนัก) และ co2Factor (ค่าสัมประสิทธิ์การลดคาร์บอนของวัสดุนั้นๆ)
+  // คืนค่า: double (ตัวเลขทศนิยม)
+  // ----------------------------------------------------------------------------
   static double calculateCo2Saved({
-    required double weightKg,
-    required double co2Factor,
+    required double weightKg, //
+    required double co2Factor, //[cite: 13]
   }) {
-    return weightKg * co2Factor;
+    // สูตร: น้ำหนัก * ค่าสัมประสิทธิ์
+    return weightKg * co2Factor; //[cite: 13]
   }
 
-  static int calculatePoints(double co2Saved) {
-    return (co2Saved * AppConstants.pointsPerKgCo2e).floor();
+  // ----------------------------------------------------------------------------
+  // ฟังก์ชันที่ 3: คำนวณแต้มสะสม (Gamification Points)
+  // รับค่า: co2Saved (ปริมาณคาร์บอนรวมที่คำนวณได้จากฟังก์ชันที่ 2)
+  // คืนค่า: int (ตัวเลขจำนวนเต็มเท่านั้น เพราะแต้มไม่ควรมีทศนิยม)
+  // ----------------------------------------------------------------------------
+  static int calculatePoints(double co2Saved) { //[cite: 13]
+    // สูตร: เอาคาร์บอนรวม * ตัวคูณแต้ม (AppConstants.pointsPerKgCo2e)
+    // .floor() คือคำสั่ง "ปัดเศษทิ้งลงมาหาจำนวนเต็ม" เช่น ได้ 15.8 แต้ม จะถูกปัดเหลือ 15 แต้ม
+    return (co2Saved * AppConstants.pointsPerKgCo2e).floor(); //[cite: 13]
   }
 }

@@ -1,29 +1,54 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:lastboss/core/utils/calculation_utils.dart';
+import 'package:flutter_test/flutter_test.dart'; // นำเข้าชุดเครื่องมือทำ Unit Test ของ Flutter
+import 'package:lastboss/core/utils/calculation_utils.dart'; // นำเข้าไฟล์ 'เครื่องคิดเลข' ที่เราต้องการจะทดสอบ
 
+// ===========================================================================
+// ฟังก์ชัน main() สำหรับรันชุดทดสอบทั้งหมด
+// ===========================================================================
 void main() {
+  
+  // 💡 สร้างหมวดหมู่การทดสอบ (Group) ชื่อ 'CalculationUtils'
+  // เพื่อรวบรวมเคสย่อยๆ ไว้ด้วยกัน เวลาพ่น Log ออกมาจะได้ดูเป็นระเบียบ
   group('CalculationUtils', () {
+    
+    // ---------- 🧪 เคสทดสอบที่ 1: การคำนวณกรณีปกติ ----------
     test('คำนวณราคา CO₂ และคะแนนจากน้ำหนัก', () {
+      
+      // 1. เทสสูตรคำนวณราคา
+      // คาดหวังว่า: ถ้าน้ำหนัก 2.5 กก. ราคา 8.5 บาท/กก. (2.5 * 8.5) ผลลัพธ์จะต้องเท่ากับ 21.25
       expect(
         CalculationUtils.calculateEstimatedPrice(
           weightKg: 2.5,
           pricePerKg: 8.5,
         ),
-        21.25,
+        21.25, // ค่าที่เราคาดหวัง
       );
+
+      // 2. เทสสูตรคำนวณคาร์บอน (CO2)
+      // คาดหวังว่า: ถ้าน้ำหนัก 2.5 กก. ค่าคงที่คาร์บอน 1.5 (2.5 * 1.5) ผลลัพธ์จะต้องเท่ากับ 3.75
       expect(
         CalculationUtils.calculateCo2Saved(weightKg: 2.5, co2Factor: 1.5),
-        3.75,
+        3.75, // ค่าที่เราคาดหวัง
       );
-      expect(CalculationUtils.calculatePoints(3.75), 37);
+
+      // 3. เทสสูตรคำนวณคะแนนสะสม
+      // คาดหวังว่า: ถ้าลดคาร์บอนได้ 3.75 (สูตรคือ * 10 = 37.5) แต่คะแนนต้องเป็นเลขจำนวนเต็ม จึงโดนปัดเศษทิ้งเหลือ 37
+      expect(CalculationUtils.calculatePoints(3.75), 37); // ค่าที่เราคาดหวัง
     });
 
+    // ---------- 🧪 เคสทดสอบที่ 2: การคำนวณกรณีขยะไม่มีมูลค่า (Edge Case) ----------
     test('วัสดุที่ไม่มีมูลค่ายังมีผลลัพธ์เป็นศูนย์', () {
+      
+      // 1. เทสสูตรคำนวณราคากรณีเป็น 0
+      // คาดหวังว่า: ถ้าน้ำหนัก 0 หรือราคา 0 ผลลัพธ์ต้องออกมาเป็น 0 โดยที่แอปไม่พัง
       expect(
         CalculationUtils.calculateEstimatedPrice(weightKg: 0, pricePerKg: 0),
-        0,
+        0, // ค่าที่เราคาดหวัง
       );
-      expect(CalculationUtils.calculatePoints(0), 0);
+
+      // 2. เทสสูตรคำนวณคะแนนกรณีคาร์บอนเป็น 0
+      // คาดหวังว่า: ถ้าคาร์บอน 0 คะแนนก็ต้องเป็น 0
+      expect(CalculationUtils.calculatePoints(0), 0); // ค่าที่เราคาดหวัง
     });
+    
   });
 }

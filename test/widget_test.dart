@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lastboss/features/history/data/models/history_record_model.dart';
@@ -53,6 +52,7 @@ Future<List<HistoryRecordModel>> _singleRecord() async => [
     pricePerKg: 8.5,
     estimatedPrice: 17,
     co2Saved: 3,
+    co2FactorPerKg: 1.5,
     pointsEarned: 30,
     note: null,
     createdAt: DateTime(2026, 8, 5),

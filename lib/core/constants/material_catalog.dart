@@ -1,13 +1,20 @@
+// ==============================================================================
+// ส่วนที่ 1: คลาส MaterialInfo (พิมพ์เขียวโครงสร้างข้อมูลวัสดุ 1 ชนิด)
+// ==============================================================================
 class MaterialInfo {
+  // Constructor: รับค่าต่างๆ เข้ามาตอนสร้างข้อมูลวัสดุ
+  // คำว่า 'required' หมายถึง "บังคับต้องใส่ข้อมูลนี้ ห้ามเว้นว่างเด็ดขาด"
   const MaterialInfo({
-    required this.displayName,
-    required this.category,
-    required this.pricePerKg,
-    required this.co2FactorPerKg,
-    this.isSellable = true,
-    required this.tips,
+    required this.displayName, // ชื่อที่ใช้แสดงบนหน้าจอ
+    required this.category, // หมวดหมู่
+    required this.pricePerKg, // ราคาประเมินต่อ 1 กิโลกรัม
+    required this.co2FactorPerKg, // ค่าสัมประสิทธิ์การลดก๊าซคาร์บอน (CO2e)
+    this.isSellable =
+        true, // เป็นขยะที่ขายได้หรือไม่ (ตั้งค่าเริ่มต้นเป็น true คือขายได้)
+    required this.tips, // รายการคำแนะนำในการจัดการขยะ (List ของข้อความ)
   });
 
+  // ประกาศตัวแปร (Field) ทั้งหมดของคลาส (ใช้ final เพราะข้อมูลพวกนี้สร้างแล้วไม่ควรโดนแก้กลางทาง)
   final String displayName;
   final String category;
   final double pricePerKg;
@@ -16,25 +23,34 @@ class MaterialInfo {
   final List<String> tips;
 }
 
-/// Reference data keyed by the raw label emitted by [AssetPaths.labels].
-///
-/// Price (THB/kg) and CO2 factors are indicative junk-shop estimates, not
-/// live market data — adjust freely to match local pricing.
+// ==============================================================================
+// ส่วนที่ 2: คลาส MaterialCatalog (ฐานข้อมูลอ้างอิงวัสดุทั้งหมด)
+// ==============================================================================
+/// คำอธิบายในโค้ด: เป็นข้อมูลอ้างอิงที่ใช้ "Key" ตรงกับชื่อ Label ที่มาจากไฟล์ AI (labels.txt)
+/// ส่วนข้อมูล ราคา และ ค่า CO2 เป็นเพียงการประมาณการล่วงหน้า (ยังไม่ใช่ราคาแบบ Live)
 class MaterialCatalog {
+  // ล็อคไม่ให้สร้าง Object (เหมือนไฟล์ก่อนๆ)
   const MaterialCatalog._();
 
+  // ----------------------------------------------------------------------------
+  // ตัวแปร byLabel (พจนานุกรมข้อมูล หรือ Map)
+  // โครงสร้าง Map <String (Key จาก AI), MaterialInfo (ข้อมูลฉบับเต็ม)>
+  // ----------------------------------------------------------------------------
   static const Map<String, MaterialInfo> byLabel = {
+    // Key ของ AI คือ 'aluminum_can' จะคู่กับข้อมูลกระป๋องอะลูมิเนียม
     'aluminum_can': MaterialInfo(
       displayName: 'อะลูมิเนียม',
       category: 'โลหะ',
-      pricePerKg: 35.0,
-      co2FactorPerKg: 9.0,
+      pricePerKg: 35.0, // ราคาประเมิน 35 บาท/กก.
+      co2FactorPerKg: 9.0, // ลดคาร์บอน 9 หน่วย/กก.
       tips: [
         'เทของเหลวออกและล้างกระป๋องให้สะอาด',
         'บีบกระป๋องให้แบนเพื่อประหยัดพื้นที่',
         'แกะฉลากพลาสติกออก',
       ],
     ),
+
+    // ขยะประเภทที่ 2: ขยะทั่วไป (สังเกตว่า isSellable ถูดตั้งเป็น false คือขายไม่ได้)
     'general_waste': MaterialInfo(
       displayName: 'ขยะทั่วไป',
       category: 'รีไซเคิลไม่ได้',
@@ -43,8 +59,10 @@ class MaterialCatalog {
       isSellable: false,
       tips: ['วัสดุนี้ไม่รับซื้อ', 'ทิ้งลงถังขยะที่เหมาะสม'],
     ),
+
+    // ... (ส่วนตรงนี้คือข้อมูล แก้ว, พลาสติก HDPE, กระดาษ, PET, เศษเหล็ก โครงสร้างเหมือนกันครับ)
     'glass': MaterialInfo(
-      displayName: 'แก้ว',
+      /* ... */ displayName: 'แก้ว',
       category: 'แก้ว',
       pricePerKg: 1.0,
       co2FactorPerKg: 0.3,
@@ -55,7 +73,7 @@ class MaterialCatalog {
       ],
     ),
     'hdpe_plastic': MaterialInfo(
-      displayName: 'พลาสติก HDPE',
+      /* ... */ displayName: 'พลาสติก HDPE',
       category: 'พลาสติก',
       pricePerKg: 8.0,
       co2FactorPerKg: 1.5,
@@ -66,7 +84,7 @@ class MaterialCatalog {
       ],
     ),
     'paper_cardboard': MaterialInfo(
-      displayName: 'กระดาษ/กระดาษลัง',
+      /* ... */ displayName: 'กระดาษ/กระดาษลัง',
       category: 'กระดาษ',
       pricePerKg: 3.0,
       co2FactorPerKg: 1.0,
@@ -77,7 +95,7 @@ class MaterialCatalog {
       ],
     ),
     'pet_plastic_bottle': MaterialInfo(
-      displayName: 'ขวดพลาสติก PET',
+      /* ... */ displayName: 'ขวดพลาสติก PET',
       category: 'พลาสติก',
       pricePerKg: 8.5,
       co2FactorPerKg: 1.5,
@@ -89,7 +107,7 @@ class MaterialCatalog {
       ],
     ),
     'steel_scrap': MaterialInfo(
-      displayName: 'เศษเหล็ก',
+      /* ... */ displayName: 'เศษเหล็ก',
       category: 'โลหะ',
       pricePerKg: 6.0,
       co2FactorPerKg: 1.8,
@@ -100,7 +118,14 @@ class MaterialCatalog {
     ),
   };
 
+  // ----------------------------------------------------------------------------
+  // ฟังก์ชัน lookup: ใช้ค้นหาข้อมูลวัสดุจากชื่อภาษาอังกฤษ
+  // ----------------------------------------------------------------------------
   static MaterialInfo lookup(String label) {
+    // โค้ดนี้ใช้เครื่องหมาย ?? (Null coalescing operator)
+    // ความหมายคือ: เอา label ไปหาใน Map byLabel ก่อน
+    // ถ้าหาเจอ (ไม่เป็น null) ก็ส่งค่า MaterialInfo นั้นกลับไป
+    // แต่ถ้าหา "ไม่เจอ" (เป็น null) ให้ส่งค่าเริ่มต้นด้านหลัง ?? กลับไปแทน (Fall-back)
     return byLabel[label] ??
         const MaterialInfo(
           displayName: 'ไม่ทราบชนิดวัสดุ',

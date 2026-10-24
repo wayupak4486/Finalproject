@@ -1,27 +1,51 @@
-import 'package:flutter/material.dart';
+// ==============================================================================
+// ส่วนที่ 1: นำเข้าแพ็กเกจ (Import)
+// ==============================================================================
+import 'package:flutter/material.dart'; //
 
-class AppButton extends StatelessWidget {
+// ==============================================================================
+// ส่วนที่ 2: คลาส AppButton (ปุ่มกดแบบกำหนดเอง)
+// สืบทอดจาก StatelessWidget เพราะตัวปุ่มเองไม่ต้องเก็บข้อมูล State อะไร แค่รับคำสั่งมาแล้วแสดงผล
+// ==============================================================================
+class AppButton extends StatelessWidget { //
+  
+  // ----------------------------------------------------------------------------
+  // Constructor: จุดรับข้อมูลตอนที่หน้าจออื่นเรียกใช้ AppButton
+  // ----------------------------------------------------------------------------
   const AppButton({
-    required this.label,
-    required this.onPressed,
-    this.icon,
-    super.key,
+    required this.label,      // บังคับว่าต้องส่งข้อความปุ่มมาด้วย (เช่น 'ตกลง')
+    required this.onPressed,  // บังคับว่าต้องส่งฟังก์ชันที่จะให้ทำเมื่อกดปุ่ม
+    this.icon,                // ไอคอน (ไม่บังคับ สามารถเป็น null ได้)[cite: 16]
+    super.key,                // ส่ง key ไปให้คลาสแม่ (StatelessWidget) เพื่อให้ระบบจดจำวิดเจ็ตนี้[cite: 16]
   });
 
-  final String label;
-  final VoidCallback? onPressed;
-  final IconData? icon;
+  // ประกาศตัวแปรรับค่า (ใช้ final เพราะข้อมูลพวกนี้รับมาแล้วจะไม่เปลี่ยนค่าในหน้านี้)
+  final String label; //[cite: 16]
+  
+  // VoidCallback? คือ "ฟังก์ชันที่ไม่มีการรับค่าและไม่คืนค่า" 
+  // เครื่องหมาย ? หมายถึง "สามารถเป็น null (ค่าว่าง) ได้"
+  final VoidCallback? onPressed; //[cite: 16]
+  
+  final IconData? icon; //[cite: 16]
 
+  // ----------------------------------------------------------------------------
+  // ฟังก์ชัน build: ทำหน้าที่วาดปุ่มลงบนหน้าจอ
+  // ----------------------------------------------------------------------------
   @override
-  Widget build(BuildContext context) {
-    if (icon == null) {
-      return FilledButton(onPressed: onPressed, child: Text(label));
+  Widget build(BuildContext context) { //[cite: 16]
+    
+    // เช็คเงื่อนไข: ถ้าไม่ได้ส่งไอคอนมา (icon เป็นค่าว่าง หรือ null)
+    if (icon == null) { //[cite: 16]
+      // ให้สร้างปุ่มแบบธรรมดา (FilledButton) ที่มีแค่ข้อความ Text
+      return FilledButton(onPressed: onPressed, child: Text(label)); //[cite: 16]
     }
 
-    return FilledButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      label: Text(label),
+    // แต่ถ้ามีไอคอนส่งมาด้วย
+    // ให้สร้างปุ่มแบบมีไอคอน (FilledButton.icon) ซึ่งมันจะจัดวางไอคอนคู่กับข้อความให้อัตโนมัติ
+    return FilledButton.icon( //[cite: 16]
+      onPressed: onPressed, //[cite: 16]
+      icon: Icon(icon),     // เอาข้อมูล icon มายัดใส่กล่อง Icon() ของ Flutter[cite: 16]
+      label: Text(label),   // เอาข้อความมายัดใส่กล่อง Text()[cite: 16]
     );
   }
 }

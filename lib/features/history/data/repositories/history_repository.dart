@@ -13,6 +13,17 @@ class HistoryRepository {
     return db.insert(DatabaseConstants.historyTable, record.toMap());
   }
 
+  Future<void> updateHistory(HistoryRecordModel record) async {
+    final db = await database.database;
+
+    await db.update(
+      DatabaseConstants.historyTable,
+      record.toMap(),
+      where: 'id = ?',
+      whereArgs: [record.id],
+    );
+  }
+
   Future<List<HistoryRecordModel>> getAllHistory() async {
     final db = await database.database;
 
